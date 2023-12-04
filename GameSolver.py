@@ -4,46 +4,65 @@ from ConnectFour import ConnectFour
 
 
 class TreeNode:
-    def __init__(self, state, weight, n):
-        self.state = state
-        self.weight = weight
-        self.n = n
-        self.parent = 0
-        self.children = []
-        self.visited = False
+	def __init__(self, state, parent=None):
+		self.state = state
+		self.wins = 0  # win time
+		self.visits = 0  # simulation time
+		self.parent = parent
+		self.children = []
+
+	# self.visited = False
+
+	def best_child(self):
+		if not self.children:
+			return self
+
+		best_child = max(self.children, key=calUcb)
+		return best_child
+
+
+def calUcb(node: TreeNode):
+	if node.visits == 0:
+		return math.inf
+
+	exploitation = node.wins / node.visits
+	exploration = math.sqrt(2 * math.log(node.parent.visits) / node.visits)
+	ucb_score = exploitation + exploration
+	return ucb_score
 
 
 class MCTS:
-    def __init__(self, game: ConnectFour = ConnectFour()):
-        self.game = game
-        self.root = TreeNode(game.board, 0, 0)
+	def __init__(self, game: ConnectFour = ConnectFour()):
+		self.game = game
+		self.root = TreeNode(game.board)
 
-    def calUcb(self, node: TreeNode):
-        if not node.visited:
-            return math.inf
-        else:
-            value_estimate = node.weight/node.n
-            exploration = math.sqrt(2 * math.log(self.root.n) / node.n)
-            ucb_score = value_estimate + exploration
-            return ucb_score
+	def select(self, node: TreeNode):
+		while not node.children:
+			node = node.best_child()
 
-    def selection(self, node: TreeNode):
-        return 0
+		return node
 
-    def expansion(self, node: TreeNode):
-        return 0
+	def expanse(self, node: TreeNode):
+		temp_state = node.state.copy()  # numpy deepcopy
+		temp_state
 
-    def simulation(self, node: TreeNode):
-        return 0
+		return
 
-    def backpropagation(self, node: TreeNode):
-        return 0
+	def simulate(self, node: TreeNode):
+		return 0
 
-    def doSearch(self, node: TreeNode):
-        if not node.children:
-            if node.visited:
-                self.simulation(node)
-                self.backpropagation(node)
-            else:
-                self.expansion(node)
-        self.selection(node)
+	def back_track(self, node: TreeNode):
+		return 0
+
+	def search(self, node: TreeNode):
+		# for _ in range(iterations):
+		# 	# while not self.root.state.
+		# 	pass
+		legal_moves = 2
+		if len(node.children) == legal_moves:
+			return node.best_child()
+		# elif len(node.children) > 0:  # leaf node
+		node = self.select(node)
+		self.expanse(node)
+		self.simulate(node)
+		self.back_track(node)
