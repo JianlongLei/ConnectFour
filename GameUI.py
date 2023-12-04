@@ -27,13 +27,15 @@ class GameUI:
         window.title(self.title)
         button = Button(window, text="New Game!", command=self._click_new_game)
         button.grid(row=0)
+        solver = Button(window, text="Solver!", command=self._click_solve_game)
+        solver.grid(row=1)
         self.canvas = Canvas(window, width=self.width, height=self.height,
                              background=self.backgroundColor,
                              highlightthickness=0)
-        self.canvas.grid(row=1)
+        self.canvas.grid(row=2)
         self.currentPlayerVar = StringVar(self.window, value="")
         self.currentPlayerLabel = Label(self.window, textvariable=self.currentPlayerVar)
-        self.currentPlayerLabel.grid(row=2)
+        self.currentPlayerLabel.grid(row=3)
         self.canvas.bind('<Button-1>', self._board_click)
         self.newGame()
 
@@ -79,6 +81,9 @@ class GameUI:
 
     def _click_new_game(self):
         self.newGame()
+
+    def _click_solve_game(self):
+        return 0
 
     def newGame(self):
         self.game.newGame()
