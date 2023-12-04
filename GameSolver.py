@@ -50,13 +50,15 @@ class MCTS:
 	@staticmethod
 	def expanse(node: TreeNode):
 		actions = ConnectFour.actions(node.state)
+		if not actions:
+			return node
 		for action in actions:
 			state = node.state.copy()  # numpy deepcopy
 			new_state = ConnectFour.move(state, action)
 			child = TreeNode(state=new_state, parent=node)
 			node.children.append(child)
-			# print("child:", child)
-			# print("root:", node)
+		# print("child:", child)
+		# print("root:", node)
 		return node.children[0]  # randomly return a child
 
 	@staticmethod
@@ -64,10 +66,16 @@ class MCTS:
 		sim_board = node.state.copy()
 		sim_game = ConnectFour(board=sim_board)
 		while not sim_game.end:
+			print(sim_game.board)
+			print(sim_game.endStatus)
 			actions = ConnectFour.actions(sim_game.board)
+			if not actions:
+				break
 			action = random.choice(actions)
 			sim_game.doAction(action[1])
-		print(sim_game.board)
+			print(action)
+			print(sim_game.end)
+		# print(sim_game.board)
 
 		return sim_game.endStatus
 
@@ -82,11 +90,11 @@ class MCTS:
 		# if len(node.children) == len(ConnectFour.actions(node.state)):
 		# 	return node.best_child()
 		node = self.select(self.root)
+		print("select:", node)
 		node = self.expanse(node)
-		print(node)
-		print(node.state)
+		print("expanse:", node)
+		# print(node.state)
 		res = self.simulate(node)
 		print(res)
 		self.back_track(node, res)
 		print(self.root)
-

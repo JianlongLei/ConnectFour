@@ -24,7 +24,7 @@ class ConnectFour:
 		self.height = height
 		self.board = board
 
-		self.nextStep = np.zeros(width)
+		self.nextStep = np.sum(board != 0, axis=0)
 		self.currentPlayer = ConnectFour.cur_player(self.board)
 
 	def newGame(self):

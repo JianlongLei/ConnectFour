@@ -32,6 +32,11 @@ board = np.array([
 game = ConnectFour(board=board)
 
 mcts = MCTS(ConnectFour.PLAYER1, game)
-# mcts.select()
-for _ in range(100):
+
+for _ in range(30):
 	mcts.search()
+
+print("root", mcts.root)
+
+for c in mcts.root.children:
+	print(c)
