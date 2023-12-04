@@ -16,26 +16,27 @@ class TreeNode:
     def isLeaf(self):
         return not self.children
 
-    def update(self):
-        self.weight = 0
+    def update(self, node):
+        self.weight += node.weight
         self.n += 1
-        for i in self.children:
-            self.weight += self.children[i]
 
     def visited(self):
         return self.n != 0
 
+
 class MCTS:
     const = 2
-    def __init__(self, game: ConnectFour = ConnectFour(), playerId):
+
+    def __init__(self, game: ConnectFour = ConnectFour()):
         self.root = TreeNode(game)
-        self.player = playerId
+        self.player = game.currentPlayer
+        self.expansion(self.root)
 
     def calUcb(self, node: TreeNode):
         if not node.visited():
             return math.inf
         else:
-            value_estimate = node.weight/node.n
+            value_estimate = node.weight / node.n
             exploration = math.sqrt(self.const * math.log(self.root.n) / node.n)
             ucb_score = value_estimate + exploration
             return ucb_score
@@ -89,6 +90,7 @@ class MCTS:
         current = node
         while current.parent:
             current.parent.update()
+            current = current.parent
         return 0
 
     def doSearch(self, node: TreeNode):
@@ -100,9 +102,10 @@ class MCTS:
                     self.backpropagation(node)
                 else:
                     self.expansion(node)
+                current = self.root
             else:
                 nextNode = self.selection(node)
                 if nextNode >= 0:
                     current = node.children[nextNode]
                 else:
-                    current = None
+                    current = self.root

@@ -1,6 +1,7 @@
 from tkinter import *
 
 from ConnectFour import ConnectFour
+from GameSolver import MCTS
 
 
 class GameUI:
@@ -16,6 +17,7 @@ class GameUI:
     itemSize = 50
     boardWidth = 0
     boardHeight = 0
+    solving = False
 
     def __init__(self, window, game: ConnectFour = ConnectFour()):
         self.game = game
@@ -39,27 +41,29 @@ class GameUI:
         self.canvas.bind('<Button-1>', self._board_click)
         self.newGame()
 
-    def _show_current_player(self):
-        p = self.p1 if self.game.currentPlayer == 1 else self.p2
+    def _show_current_player(self, game):
+        p = self.p1 if game.currentPlayer == 1 else self.p2
         self.currentPlayerVar.set('Current Player: ' + p)
 
-    def draw(self):
-        for i in range(self.game.height):
-            for j in range(self.game.width):
+    def draw(self, game):
+        for i in range(game.height):
+            for j in range(game.width):
                 itemX0 = j * (self.itemSize + self.padding * 2) + self.padding * 2
                 itemY0 = i * (self.itemSize + self.padding * 2) + self.padding * 2
                 itemX1 = itemX0 + self.itemSize
                 itemY1 = itemY0 + self.itemSize
                 color = self.emptyColor
-                item = self.game.board[i][j]
+                item = game.board[i][j]
                 if item == 1:
                     color = self.p1Color
                 elif item == 2:
                     color = self.p2Color
                 self.canvas.create_oval(itemX0, itemY0, itemX1, itemY1, fill=color)
-        self._show_current_player()
+        self._show_current_player(game)
 
     def _board_click(self, event):
+        if self.solving:
+            return
         if self.game.end:
             return
         if event.x < self.padding:
@@ -69,7 +73,7 @@ class GameUI:
         else:
             position = (event.x - self.padding) // (self.itemSize + self.padding * 2)
         if self.game.doAction(position):
-            self.draw()
+            self.draw(self.game)
         if self.game.end:
             x = self.canvas.winfo_width() // 2
             y = self.canvas.winfo_height() // 2
@@ -83,6 +87,10 @@ class GameUI:
         self.newGame()
 
     def _click_solve_game(self):
+        self.solving = True
+        solver = MCTS(self.game)
+        solver.doSearch(solver.root)
+        self.solving = False
         return 0
 
     def newGame(self):
@@ -90,4 +98,4 @@ class GameUI:
         self.canvas.delete(ALL)
         self.canvas.config(width=self.width, height=self.height)
         self.window.update()
-        self.draw()
+        self.draw(self.game)
