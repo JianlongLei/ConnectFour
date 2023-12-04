@@ -52,9 +52,9 @@ class GameUI:
                 itemY1 = itemY0 + self.itemSize
                 color = self.emptyColor
                 item = self.game.board[i][j]
-                if item == 1:
+                if item == ConnectFour.PLAYER1:
                     color = self.p1Color
-                elif item == 2:
+                elif item == ConnectFour.PLAYER2:
                     color = self.p2Color
                 self.canvas.create_oval(itemX0, itemY0, itemX1, itemY1, fill=color)
         self._show_current_player()

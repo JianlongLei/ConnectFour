@@ -36,17 +36,22 @@ class MCTS:
 		self.game = game
 		self.root = TreeNode(game.board)
 
-	def select(self, node: TreeNode):
+	@staticmethod
+	def select(node: TreeNode):
 		while not node.children:
 			node = node.best_child()
 
 		return node
 
 	def expanse(self, node: TreeNode):
-		temp_state = node.state.copy()  # numpy deepcopy
-		temp_state
+		# state = node.state  # numpy deepcopy
+		actions = ConnectFour.actions(node.state)
+		for action in actions:
+			state = node.state.copy()
+			new_state = ConnectFour.move(state, action)
+			child = TreeNode(state=new_state, parent=node)
+			node.children.append(child)
 
-		return
 
 	def simulate(self, node: TreeNode):
 		return 0

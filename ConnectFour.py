@@ -1,22 +1,28 @@
 import numpy as np
 
 PLAYER1 = 1
-PLAYER2 = 2
+PLAYER2 = -1
 EMPTY = 0
-class ConnectFour:
 
+
+class ConnectFour:
+	PLAYER1 = PLAYER1
+	PLAYER2 = PLAYER2
 	end = False
 	# 0: not end
 	# 1 player 1 win
 	# 2 player 2 win
 	# -1 draw
 	endStatus = 0
-	currentPlayer = 1
+	currentPlayer = PLAYER1
 
-	def __init__(self, width=7, height=6):
+	def __init__(self, width=7, height=6, board=None):
+		if board is None:
+			board = np.zeros((height, width))
+
 		self.width = width
 		self.height = height
-		self.board = np.zeros((height, width))
+		self.board = board
 		self.nextStep = np.zeros(width)
 
 	def newGame(self):
@@ -24,17 +30,18 @@ class ConnectFour:
 		self.nextStep = np.zeros(self.width)
 		self.end = False
 		self.endStatus = 0
-		self.currentPlayer = 1
+		self.currentPlayer = PLAYER1
 
-	def nextPlayer(self, playerId):
-		if playerId == 1:
-			self.currentPlayer = 2
-		else:
-			self.currentPlayer = 1
+	def nextPlayer(self):
+		self.currentPlayer = -self.currentPlayer
+		# if player == PLAYER1:
+		# 	self.currentPlayer =
+		# else:
+		# 	self.currentPlayer = 1
 
 	def doAction(self, position):
-		playerId = self.currentPlayer
-		if playerId < 1 or playerId > 2:
+		player = self.currentPlayer
+		if np.abs(player) != 1 :
 			return False
 		if position >= self.width:
 			return False
@@ -42,11 +49,11 @@ class ConnectFour:
 			return False
 		x = position
 		y = int(self.height - self.nextStep[position] - 1)
-		self.board[y][x] = playerId
+		self.board[y][x] = player
 		self.nextStep[position] += 1
 		self.endStatus = self.checkEnd(x, y)
 		self.end = self.endStatus != 0
-		self.nextPlayer(playerId)
+		self.nextPlayer()
 		return True
 
 	def checkEnd(self, x, y):
@@ -146,12 +153,25 @@ class ConnectFour:
 		return -1
 
 	@staticmethod
-	def actions(chessboard, player):
-		actions = []
-		empty_pos = np.where(chessboard == EMPTY)
-		empty_pos = list(zip(empty_pos[0], empty_pos[1]))
+	def is_valid(chessboard, move):
+		x, y = move
 
-		for move in empty_pos:
-			print(move)
+	@staticmethod
+	def actions(chessboard):
+		actions = []
+		cols = len(chessboard)
+		rows = len(chessboard[0])
+
+		for y in range(rows):
+			for x in range(cols - 1, -1, -1):
+				pos = (x, y)
+				if chessboard[pos] == EMPTY:
+					actions.append(pos)
+					break
 		return actions
 
+	@staticmethod
+	def move(chessboard, pos):
+		x = len(np.where(chessboard == EMPTY))
+		if chessboard[pos] == EMPTY:
+			chessboard[pos] = PLAYER1 if x % 2 == 1 else PLAYER2
