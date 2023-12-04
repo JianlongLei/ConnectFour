@@ -36,10 +36,11 @@ class ConnectFour:
 
 	def nextPlayer(self):
 		self.currentPlayer = -self.currentPlayer
-		# if player == PLAYER1:
-		# 	self.currentPlayer =
-		# else:
-		# 	self.currentPlayer = 1
+
+	# if player == PLAYER1:
+	# 	self.currentPlayer =
+	# else:
+	# 	self.currentPlayer = 1
 
 	def doAction(self, position):
 		player = self.currentPlayer
@@ -179,18 +180,35 @@ class ConnectFour:
 			chessboard[pos] = ConnectFour.cur_player(chessboard)
 		return chessboard
 
-	# @staticmethod
-	# def is_terminal(chessboard):
-	# 	result = self.checkHorizontally(x, y)
-	# 	if result != 0:
-	# 		return result
-	# 	result = self.checkVertically(x, y)
-	# 	if result != 0:
-	# 		return result
-	# 	result = self.checkDiagonallyDownRight(x, y)
-	# 	if result != 0:
-	# 		return result
-	# 	result = self.checkDiagonallyDownLeft(x, y)
-	# 	if result != 0:
-	# 		return result
-	# 	return self.checkDraw()
+	@staticmethod
+	def is_terminal(chessboard):
+		m, n = len(chessboard), len(chessboard[0])
+
+		def check_line(start_row, start_col, delta_row, delta_col):
+			player = chessboard[start_row][start_col]
+			if player == 0:
+				return False
+
+			for step in range(1, 4):
+				row = start_row + step * delta_row
+				col = start_col + step * delta_col
+
+				if row < 0 or row >= m or col < 0 or col >= n or chessboard[row][col] != player:
+					return False
+
+			return True
+
+		for row in range(m):
+			for col in range(n):
+				for delta_row, delta_col in [(0, 1), (1, 0), (1, 1), (1, -1)]:
+					if check_line(row, col, delta_row, delta_col):
+						return True, chessboard[row][col]
+
+		empty_pos = np.where(chessboard==EMPTY)
+		empty_pos = list(zip(empty_pos[0], empty_pos[1]))
+		# print(empty_pos)
+		# print(len(empty_pos))
+		if len(empty_pos) == 0:
+			return True, 0
+
+		return False, 0

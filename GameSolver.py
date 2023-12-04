@@ -21,7 +21,7 @@ class TreeNode:
 		return best_child
 
 	def __str__(self):
-		return f"wins/visits:{self.wins}/{self.visits}, children:{self.children}, parent:{id(self.parent)}"
+		return f"score/wins/visits:{self.score}/{self.wins}/{self.visits}, children:{self.children}, parent:{id(self.parent)}"
 
 
 def calUcb(node: TreeNode):
@@ -64,20 +64,31 @@ class MCTS:
 	@staticmethod
 	def simulate(node: TreeNode):
 		sim_board = node.state.copy()
-		sim_game = ConnectFour(board=sim_board)
-		while not sim_game.end:
-			print(sim_game.board)
-			print(sim_game.endStatus)
-			actions = ConnectFour.actions(sim_game.board)
-			if not actions:
+		winner = None
+		while True:
+			terminated, winner = ConnectFour.is_terminal(chessboard=sim_board)
+			if terminated:
 				break
+			actions = ConnectFour.actions(sim_board)
+			if not actions:
+				print(sim_board)
 			action = random.choice(actions)
-			sim_game.doAction(action[1])
-			print(action)
-			print(sim_game.end)
+			ConnectFour.move(sim_board, action)
+
+		# sim_game = ConnectFour(board=sim_board)
+		# while not sim_game.end:
+		# 	print(sim_game.board)
+		# 	# print(sim_game.endStatus)
+		# 	actions = ConnectFour.actions(sim_game.board)
+		# 	if not actions:
+		# 		break
+		# 	action = random.choice(actions)
+		# 	sim_game.doAction(action[1])
+		# 	print(action)
+		# 	print(sim_game.end)
 		# print(sim_game.board)
 
-		return sim_game.endStatus
+		return winner
 
 	def back_track(self, node: TreeNode, result):
 		while node is not None:
@@ -101,6 +112,6 @@ class MCTS:
 		print("expanse:", node)
 		# print(node.state)
 		res = self.simulate(node)
-		print(res)
+		print("res:", res)
 		self.back_track(node, res)
 		print(self.root)
