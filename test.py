@@ -29,7 +29,9 @@ board = np.array([
 	[0, 1, -1, -1, 1, -1, 0],
 	[-1, 1, 1, 1, -1, -1, 1],
 ])
-game = ConnectFour(board)
+game = ConnectFour(board=board)
 
 mcts = MCTS(ConnectFour.PLAYER1, game)
-mcts.search()
+# mcts.select()
+for _ in range(100):
+	mcts.search()

@@ -1,4 +1,5 @@
 import math
+import random
 
 from ConnectFour import ConnectFour
 
@@ -19,6 +20,9 @@ class TreeNode:
 		best_child = max(self.children, key=calUcb)
 		return best_child
 
+	def __str__(self):
+		return f"wins/visits:{self.wins}/{self.visits}, children:{self.children}, parent:{id(self.parent)}"
+
 
 def calUcb(node: TreeNode):
 	if node.visits == 0:
@@ -38,7 +42,7 @@ class MCTS:
 
 	@staticmethod
 	def select(node: TreeNode):
-		while not node.children:
+		while node.children:
 			node = node.best_child()
 
 		return node
@@ -51,21 +55,24 @@ class MCTS:
 			new_state = ConnectFour.move(state, action)
 			child = TreeNode(state=new_state, parent=node)
 			node.children.append(child)
+			# print("child:", child)
+			# print("root:", node)
 		return node.children[0]  # randomly return a child
 
 	@staticmethod
 	def simulate(node: TreeNode):
 		sim_board = node.state.copy()
-		sim_game = ConnectFour(sim_board)
+		sim_game = ConnectFour(board=sim_board)
 		while not sim_game.end:
 			actions = ConnectFour.actions(sim_game.board)
-			sim_game.doAction(actions[0])
-		# if sim_game.endStatus == ConnectFour.PLAYER1:
+			action = random.choice(actions)
+			sim_game.doAction(action[1])
+		print(sim_game.board)
 
 		return sim_game.endStatus
 
 	def back_track(self, node: TreeNode, result):
-		while node != self.root:
+		while node is not None:
 			node.visits += 1
 			node.wins += 1 if result == self.player else 0
 			node.score += result
@@ -76,5 +83,10 @@ class MCTS:
 		# 	return node.best_child()
 		node = self.select(self.root)
 		node = self.expanse(node)
+		print(node)
+		print(node.state)
 		res = self.simulate(node)
+		print(res)
 		self.back_track(node, res)
+		print(self.root)
+

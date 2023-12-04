@@ -176,7 +176,8 @@ class ConnectFour:
 	@staticmethod
 	def move(chessboard, pos):
 		if chessboard[pos] == EMPTY:
-			chessboard[pos] = chessboard.cur_player(chessboard)
+			chessboard[pos] = ConnectFour.cur_player(chessboard)
+		return chessboard
 
 	# @staticmethod
 	# def is_terminal(chessboard):
