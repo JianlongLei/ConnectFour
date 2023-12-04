@@ -7,11 +7,10 @@ class TreeNode:
 	def __init__(self, state, parent=None):
 		self.state = state
 		self.wins = 0  # win time
+		self.score = 0  # win +1 lose -1 draw 0
 		self.visits = 0  # simulation time
 		self.parent = parent
 		self.children = []
-
-	# self.visited = False
 
 	def best_child(self):
 		if not self.children:
@@ -32,7 +31,8 @@ def calUcb(node: TreeNode):
 
 
 class MCTS:
-	def __init__(self, game: ConnectFour = ConnectFour()):
+	def __init__(self, player, game: ConnectFour = ConnectFour()):
+		self.player = player
 		self.game = game
 		self.root = TreeNode(game.board)
 
@@ -43,31 +43,38 @@ class MCTS:
 
 		return node
 
-	def expanse(self, node: TreeNode):
-		# state = node.state  # numpy deepcopy
+	@staticmethod
+	def expanse(node: TreeNode):
 		actions = ConnectFour.actions(node.state)
 		for action in actions:
-			state = node.state.copy()
+			state = node.state.copy()  # numpy deepcopy
 			new_state = ConnectFour.move(state, action)
 			child = TreeNode(state=new_state, parent=node)
 			node.children.append(child)
+		return node.children[0]  # randomly return a child
 
+	@staticmethod
+	def simulate(node: TreeNode):
+		sim_board = node.state.copy()
+		sim_game = ConnectFour(sim_board)
+		while not sim_game.end:
+			actions = ConnectFour.actions(sim_game.board)
+			sim_game.doAction(actions[0])
+		# if sim_game.endStatus == ConnectFour.PLAYER1:
 
-	def simulate(self, node: TreeNode):
-		return 0
+		return sim_game.endStatus
 
-	def back_track(self, node: TreeNode):
-		return 0
+	def back_track(self, node: TreeNode, result):
+		while node != self.root:
+			node.visits += 1
+			node.wins += 1 if result == self.player else 0
+			node.score += result
+			node = node.parent
 
-	def search(self, node: TreeNode):
-		# for _ in range(iterations):
-		# 	# while not self.root.state.
-		# 	pass
-		legal_moves = 2
-		if len(node.children) == legal_moves:
-			return node.best_child()
-		# elif len(node.children) > 0:  # leaf node
-		node = self.select(node)
-		self.expanse(node)
-		self.simulate(node)
-		self.back_track(node)
+	def search(self):
+		# if len(node.children) == len(ConnectFour.actions(node.state)):
+		# 	return node.best_child()
+		node = self.select(self.root)
+		node = self.expanse(node)
+		res = self.simulate(node)
+		self.back_track(node, res)

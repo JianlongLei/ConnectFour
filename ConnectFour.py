@@ -11,8 +11,8 @@ class ConnectFour:
 	end = False
 	# 0: not end
 	# 1 player 1 win
-	# 2 player 2 win
-	# -1 draw
+	# -1 player 2 win
+	# 2 draw
 	endStatus = 0
 	currentPlayer = PLAYER1
 
@@ -23,7 +23,9 @@ class ConnectFour:
 		self.width = width
 		self.height = height
 		self.board = board
+
 		self.nextStep = np.zeros(width)
+		self.currentPlayer = ConnectFour.cur_player(self.board)
 
 	def newGame(self):
 		self.board = np.zeros((self.height, self.width))
@@ -41,7 +43,7 @@ class ConnectFour:
 
 	def doAction(self, position):
 		player = self.currentPlayer
-		if np.abs(player) != 1 :
+		if np.abs(player) != 1:
 			return False
 		if position >= self.width:
 			return False
@@ -150,11 +152,12 @@ class ConnectFour:
 				return 0
 
 		# No room left, draw game
-		return -1
+		return 2
 
 	@staticmethod
-	def is_valid(chessboard, move):
-		x, y = move
+	def cur_player(chessboard):
+		x = np.sum(chessboard)
+		return PLAYER1 if x % 2 == 0 else PLAYER2
 
 	@staticmethod
 	def actions(chessboard):
@@ -172,6 +175,21 @@ class ConnectFour:
 
 	@staticmethod
 	def move(chessboard, pos):
-		x = np.sum(chessboard)
 		if chessboard[pos] == EMPTY:
-			chessboard[pos] = PLAYER1 if x % 2 == 0 else PLAYER2
+			chessboard[pos] = chessboard.cur_player(chessboard)
+
+	# @staticmethod
+	# def is_terminal(chessboard):
+	# 	result = self.checkHorizontally(x, y)
+	# 	if result != 0:
+	# 		return result
+	# 	result = self.checkVertically(x, y)
+	# 	if result != 0:
+	# 		return result
+	# 	result = self.checkDiagonallyDownRight(x, y)
+	# 	if result != 0:
+	# 		return result
+	# 	result = self.checkDiagonallyDownLeft(x, y)
+	# 	if result != 0:
+	# 		return result
+	# 	return self.checkDraw()
