@@ -26,6 +26,13 @@ class ConnectFour:
         self.endStatus = 0
         self.currentPlayer = 1
 
+    def availableActions(self):
+        actions = []
+        for i in range(len(self.nextStep)):
+            if self.nextStep[i] < self.height:
+                actions.append(i)
+        return actions
+
     def nextPlayer(self, playerId):
         if playerId == 1:
             self.currentPlayer = 2
