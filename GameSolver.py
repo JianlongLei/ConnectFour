@@ -28,7 +28,7 @@ def calUcb(node: TreeNode):
 	if node.visits == 0:
 		return math.inf
 
-	exploitation = node.wins / node.visits
+	exploitation = node.score / node.visits
 	exploration = math.sqrt(2 * math.log(node.parent.visits) / node.visits)
 	ucb_score = exploitation + exploration
 	return ucb_score
@@ -82,8 +82,14 @@ class MCTS:
 	def back_track(self, node: TreeNode, result):
 		while node is not None:
 			node.visits += 1
-			node.wins += 1 if result == self.player else 0
-			node.score += result
+			# node.wins += 1 if result == self.player else 0
+			if result == self.player:
+				node.wins += 1
+				node.score += 1
+			elif result == -self.player:
+				node.score -= 1
+
+			# node.score += result
 			node = node.parent
 
 	def search(self):

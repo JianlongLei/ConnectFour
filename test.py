@@ -33,7 +33,7 @@ game = ConnectFour(board=board)
 
 mcts = MCTS(ConnectFour.PLAYER1, game)
 
-for _ in range(30):
+for _ in range(3000):
 	mcts.search()
 
 print("root", mcts.root)
