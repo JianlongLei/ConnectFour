@@ -172,6 +172,6 @@ class ConnectFour:
 
 	@staticmethod
 	def move(chessboard, pos):
-		x = len(np.where(chessboard == EMPTY))
+		x = np.sum(chessboard)
 		if chessboard[pos] == EMPTY:
-			chessboard[pos] = PLAYER1 if x % 2 == 1 else PLAYER2
+			chessboard[pos] = PLAYER1 if x % 2 == 0 else PLAYER2
