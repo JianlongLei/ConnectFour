@@ -5,12 +5,13 @@ from ConnectFour import ConnectFour
 
 
 class TreeNode:
-	def __init__(self, state, parent=None):
+	def __init__(self, state, parent=None, root=None):
 		self.state = state
 		self.wins = 0  # win time
 		self.score = 0  # win +1 lose -1 draw 0
 		self.visits = 0  # simulation time
 		self.parent = parent
+		self.root = root
 		self.children = []
 
 	def best_child(self):
@@ -29,7 +30,7 @@ def calUcb(node: TreeNode):
 		return math.inf
 
 	exploitation = node.score / node.visits
-	exploration = math.sqrt(2 * math.log(node.parent.visits) / node.visits)
+	exploration = math.sqrt(2 * math.log(node.root.visits) / node.visits)
 	ucb_score = exploitation + exploration
 	return ucb_score
 
@@ -39,6 +40,7 @@ class MCTS:
 		self.player = player
 		self.game = game
 		self.root = TreeNode(game.board)
+		self.root.root = self.root
 
 	@staticmethod
 	def select(node: TreeNode):
@@ -55,7 +57,7 @@ class MCTS:
 		for action in actions:
 			state = node.state.copy()  # numpy deepcopy
 			new_state = ConnectFour.move(state, action)
-			child = TreeNode(state=new_state, parent=node)
+			child = TreeNode(state=new_state, parent=node, root=node.root)
 			node.children.append(child)
 		# print("child:", child)
 		# print("root:", node)
