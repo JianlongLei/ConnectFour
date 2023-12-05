@@ -1,6 +1,7 @@
 import copy
 import math
 import random
+import time
 
 from ConnectFour import ConnectFour
 
@@ -12,6 +13,7 @@ class TreeNode:
         self.n = 0
         self.parent = None
         self.children = []
+        self.action = []
 
     def isLeaf(self):
         return not self.children
@@ -26,6 +28,7 @@ class TreeNode:
 
 class MCTS:
     const = 2
+    timeLimit = 10000
 
     def __init__(self, game: ConnectFour = ConnectFour()):
         self.root = TreeNode(game)
@@ -42,23 +45,28 @@ class MCTS:
             return ucb_score
 
     def selection(self, node: TreeNode):
-        selected = -1
-        maxUcb = -math.inf
-        for i in node.children:
-            ucb = self.calUcb(node)
-            if ucb > maxUcb:
-                maxUcb = maxUcb
-                selected = i
-        return selected
+        while node.children:
+            selected = -1
+            maxUcb = -math.inf
+            for child in node.children:
+                ucb = self.calUcb(node)
+                if ucb > maxUcb and not child.game.end:
+                    maxUcb = maxUcb
+                    selected = child
+            node = selected
+        return node
 
     def expansion(self, node: TreeNode):
+        if not node.isLeaf():
+            return False
         availableActions = node.game.availableActions()
         for i in availableActions:
             newNode = TreeNode(node.game)
             newNode.game.doAction(i)
             node.children.append(newNode)
+            node.action.append(i)
             newNode.parent = node
-        return 0
+        return True
 
     def simulation(self, node: TreeNode):
         game = copy.deepcopy(node.game)
@@ -68,7 +76,7 @@ class MCTS:
             availableActions = game.availableActions()
             if availableActions:
                 # random actions
-                action = random.randint(0, len(availableActions) - 1)
+                action = random.choice(availableActions)
                 game.doAction(action)
                 terminate = game.end
             else:
@@ -89,23 +97,29 @@ class MCTS:
     def backpropagation(self, node: TreeNode):
         current = node
         while current.parent:
-            current.parent.update()
+            current.parent.update(current)
             current = current.parent
         return 0
 
-    def doSearch(self, node: TreeNode):
-        current = node
-        while current:
-            if current.isLeaf():
-                if not node.visited():
-                    self.simulation(node)
-                    self.backpropagation(node)
-                else:
-                    self.expansion(node)
-                current = self.root
-            else:
-                nextNode = self.selection(node)
-                if nextNode >= 0:
-                    current = node.children[nextNode]
-                else:
-                    current = self.root
+    def doSearch(self):
+        startTime = time.time()
+        node = self.root
+        self.expansion(node)
+        while time.time() - startTime < self.timeLimit:
+            node = self.selection(node)
+            if node.visited() and self.expansion(node):
+                node = node.children[0]
+            if node.visited():
+                break
+            self.simulation(node)
+            self.backpropagation(node)
+        root = self.root
+        visitResult = []
+        valueResult = []
+        actionResult = []
+        for i in range(len(root.children)):
+            child = root.children[i]
+            actionResult.append(root.action[i])
+            visitResult.append(child.n / root.n)
+            valueResult.append(child.weight / root.weight)
+        return visitResult, valueResult, actionResult
