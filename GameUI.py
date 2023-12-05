@@ -105,6 +105,8 @@ class GameUI:
         solver = MCTS(self.game)
         visitResult, valueResult, actionResult = solver.doSearch()
         self.solving = False
+        self.refresh()
+        self.draw(self.game)
         for i, action in enumerate(actionResult):
             x = action
             y = self.game.height - self.game.nextStep[action] - 1

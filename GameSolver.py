@@ -111,8 +111,8 @@ class MCTS:
             node = self.selection(self.root)
             if node.visited() and self.expansion(node):
                 node = node.children[0]
-            if node.visited() and node.game.end:
-                continue
+            # if node.visited() and node.game.end:
+            #     continue
             self.simulation(node)
             self.backpropagation(node)
         root = self.root
@@ -123,5 +123,5 @@ class MCTS:
             child = root.children[i]
             actionResult.append(root.action[i])
             visitResult.append(child.n)
-            valueResult.append(child.weight)
+            valueResult.append(round(child.n/root.n, 2))
         return visitResult, valueResult, actionResult
