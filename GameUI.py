@@ -40,8 +40,6 @@ class GameUI:
         solver.pack(side=LEFT, padx=10, pady=10)
         solver = Button(topFrame, text="Load", command=self._click_load_game)
         solver.pack(side=LEFT, padx=10, pady=10)
-        self.infoFrame = Frame(window)
-        self.infoFrame.pack(side=TOP, fill='both')
         self.canvas = Canvas(window, width=self.width, height=self.height,
                              background=self.backgroundColor,
                              highlightthickness=0)
@@ -64,6 +62,7 @@ class GameUI:
         return itemX0, itemY0, itemX1, itemY1
 
     def draw(self, game):
+        self.canvas.delete(ALL)
         for i in range(game.height):
             for j in range(game.width):
                 itemX0, itemY0, itemX1, itemY1 = self.itemPosition(j, i)
@@ -107,11 +106,11 @@ class GameUI:
         visitResult, valueResult, actionResult = solver.doSearch()
         self.solving = False
         for i, action in enumerate(actionResult):
-            itemX0, itemY0, itemX1, itemY1 = self.itemPosition(action, 0)
-            text = 'n:' + str(visitResult[i]) + ';v:' + str(valueResult[i])
-            text2Print = StringVar(self.infoFrame, text)
-            label = Label(self.infoFrame, textvariable=text2Print)
-            label.place(relx=itemX0)
+            x = action
+            y = self.game.height - self.game.nextStep[action] - 1
+            itemX0, itemY0, itemX1, itemY1 = self.itemPosition(x, y)
+            text = 'a: ' + str(action) + '\nn: ' + str(visitResult[i]) + '\nv: ' + str(valueResult[i])
+            self.canvas.create_text(itemX0 + self.padding * 2, itemY0 + self.padding * 2, text=text, font=("Helvetica", 10), fill="#333")
         return 0
 
     def _click_save_game(self):
@@ -140,6 +139,4 @@ class GameUI:
     def refresh(self):
         self.canvas.delete(ALL)
         self.canvas.config(width=self.width, height=self.height)
-        for widget in self.infoFrame.winfo_children():
-            widget.destroy()
         self.window.update()

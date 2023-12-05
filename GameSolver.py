@@ -28,7 +28,7 @@ class TreeNode:
 
 class MCTS:
     const = 2
-    timeLimit = 10000
+    timeLimit = 0.08
 
     def __init__(self, game: ConnectFour = ConnectFour()):
         self.root = TreeNode(game)
@@ -45,19 +45,21 @@ class MCTS:
             return ucb_score
 
     def selection(self, node: TreeNode):
-        while node.children:
-            selected = -1
+        while node and node.children:
+            selected = None
             maxUcb = -math.inf
             for child in node.children:
-                ucb = self.calUcb(node)
-                if ucb > maxUcb and not child.game.end:
-                    maxUcb = maxUcb
+                ucb = self.calUcb(child)
+                if ucb > maxUcb:
+                    maxUcb = ucb
                     selected = child
             node = selected
         return node
 
     def expansion(self, node: TreeNode):
         if not node.isLeaf():
+            return False
+        if node.game.end:
             return False
         availableActions = node.game.availableActions()
         for i in availableActions:
@@ -106,13 +108,11 @@ class MCTS:
         node = self.root
         self.expansion(node)
         while time.time() - startTime < self.timeLimit:
-            node = self.selection(node)
-            if node.game.end:
-                break
+            node = self.selection(self.root)
             if node.visited() and self.expansion(node):
                 node = node.children[0]
-            if node.visited():
-                break
+            if node.visited() and node.game.end:
+                continue
             self.simulation(node)
             self.backpropagation(node)
         root = self.root
@@ -122,6 +122,6 @@ class MCTS:
         for i in range(len(root.children)):
             child = root.children[i]
             actionResult.append(root.action[i])
-            visitResult.append(child.n / root.n)
-            valueResult.append(child.weight / root.weight)
+            visitResult.append(child.n)
+            valueResult.append(child.weight)
         return visitResult, valueResult, actionResult
