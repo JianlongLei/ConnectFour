@@ -21,6 +21,13 @@ class TreeNode:
 		best_child = max(self.children, key=calUcb)
 		return best_child
 
+	def worst_child(self):
+		if not self.children:
+			return None
+
+		worst_child = min(self.children, key=calUcb)
+		return worst_child
+
 	def __str__(self):
 		return f"score/wins/visits:{self.score}/{self.wins}/{self.visits}, children:{self.children}, parent:{id(self.parent)}"
 
@@ -51,7 +58,7 @@ class MCTS:
 				node = node.best_child()
 			else:
 				node = random.choice(node.children)
-
+				# node = node.worst_child()  # minmax
 		return node
 
 	@staticmethod

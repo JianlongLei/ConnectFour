@@ -36,6 +36,11 @@ print("root", mcts.root)
 for c in mcts.root.children:
 	print(c, GameSolver.calUcb(c))
 	print(c.state)
+	# print(ConnectFour.cur_player(c.state))
+	# next_node = c.worst_child()
+	# print(next_node)
+	# print(next_node.state)
+
 
 # node = mcts.root
 # while node is not None:
