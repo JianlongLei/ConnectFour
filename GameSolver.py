@@ -107,6 +107,8 @@ class MCTS:
         self.expansion(node)
         while time.time() - startTime < self.timeLimit:
             node = self.selection(node)
+            if node.game.end:
+                break
             if node.visited() and self.expansion(node):
                 node = node.children[0]
             if node.visited():

@@ -6,6 +6,7 @@ import pickle
 
 saveFile = 'saved_game.pkl'
 
+
 class GameUI:
     p1 = 'Blue'
     p2 = 'Green'
@@ -39,6 +40,8 @@ class GameUI:
         solver.pack(side=LEFT, padx=10, pady=10)
         solver = Button(topFrame, text="Load", command=self._click_load_game)
         solver.pack(side=LEFT, padx=10, pady=10)
+        self.infoFrame = Frame(window)
+        self.infoFrame.pack(side=TOP, fill='both')
         self.canvas = Canvas(window, width=self.width, height=self.height,
                              background=self.backgroundColor,
                              highlightthickness=0)
@@ -53,13 +56,17 @@ class GameUI:
         p = self.p1 if game.currentPlayer == 1 else self.p2
         self.currentPlayerVar.set('Current Player: ' + p)
 
+    def itemPosition(self, x, y):
+        itemX0 = x * (self.itemSize + self.padding * 2) + self.padding * 2
+        itemY0 = y * (self.itemSize + self.padding * 2) + self.padding * 2
+        itemX1 = itemX0 + self.itemSize
+        itemY1 = itemY0 + self.itemSize
+        return itemX0, itemY0, itemX1, itemY1
+
     def draw(self, game):
         for i in range(game.height):
             for j in range(game.width):
-                itemX0 = j * (self.itemSize + self.padding * 2) + self.padding * 2
-                itemY0 = i * (self.itemSize + self.padding * 2) + self.padding * 2
-                itemX1 = itemX0 + self.itemSize
-                itemY1 = itemY0 + self.itemSize
+                itemX0, itemY0, itemX1, itemY1 = self.itemPosition(j, i)
                 color = self.emptyColor
                 item = game.board[i][j]
                 if item == 1:
@@ -97,8 +104,14 @@ class GameUI:
     def _click_solve_game(self):
         self.solving = True
         solver = MCTS(self.game)
-        solver.doSearch()
+        visitResult, valueResult, actionResult = solver.doSearch()
         self.solving = False
+        for i, action in enumerate(actionResult):
+            itemX0, itemY0, itemX1, itemY1 = self.itemPosition(action, 0)
+            text = 'n:' + str(visitResult[i]) + ';v:' + str(valueResult[i])
+            text2Print = StringVar(self.infoFrame, text)
+            label = Label(self.infoFrame, textvariable=text2Print)
+            label.place(relx=itemX0)
         return 0
 
     def _click_save_game(self):
@@ -114,15 +127,19 @@ class GameUI:
             data = pickle.load(f)
             f.close()
             self.game = pickle.loads(data)
+            self.refresh()
             self.draw(self.game)
             messagebox.showinfo("Load", "Game Loaded")
         return 0
 
     def newGame(self):
         self.game.newGame()
-        self.canvas.delete(ALL)
-        self.canvas.config(width=self.width, height=self.height)
-        self.window.update()
+        self.refresh()
         self.draw(self.game)
 
-
+    def refresh(self):
+        self.canvas.delete(ALL)
+        self.canvas.config(width=self.width, height=self.height)
+        for widget in self.infoFrame.winfo_children():
+            widget.destroy()
+        self.window.update()
