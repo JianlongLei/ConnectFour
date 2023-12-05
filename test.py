@@ -48,3 +48,19 @@ for c in mcts.root.children:
 	# print(node, GameSolver.calUcb(node))
 	# print(node.state)
 	# node = node.best_child()
+board = np.array([
+	[0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0],
+])
+game = ConnectFour(board=board)
+
+mcts = MCTS(ConnectFour.PLAYER1, game)
+for _ in range(1000):
+	mcts.search()
+for c in mcts.root.children:
+	print(c, GameSolver.calUcb(c))
+	print(c.state)
