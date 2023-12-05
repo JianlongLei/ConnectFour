@@ -16,7 +16,7 @@ class TreeNode:
 
 	def best_child(self):
 		if not self.children:
-			return self
+			return None
 
 		best_child = max(self.children, key=calUcb)
 		return best_child
@@ -28,9 +28,10 @@ class TreeNode:
 def calUcb(node: TreeNode):
 	if node.visits == 0:
 		return math.inf
-
+	if node.parent is None:
+		return 0
 	exploitation = node.score / node.visits
-	exploration = math.sqrt(2 * math.log(node.root.visits) / node.visits)
+	exploration = math.sqrt(2 * math.log(node.parent.visits) / node.visits)
 	ucb_score = exploitation + exploration
 	return ucb_score
 
@@ -42,17 +43,22 @@ class MCTS:
 		self.root = TreeNode(game.board)
 		self.root.root = self.root
 
-	@staticmethod
-	def select(node: TreeNode):
+	# @staticmethod
+	def select(self, node: TreeNode):
 		while node.children:
-			node = node.best_child()
+			cur_player = ConnectFour.cur_player(node.state)
+			if cur_player == self.player:
+				node = node.best_child()
+			else:
+				node = random.choice(node.children)
 
 		return node
 
 	@staticmethod
 	def expanse(node: TreeNode):
+		terminated, _ = ConnectFour.is_terminal(node.state)
 		actions = ConnectFour.actions(node.state)
-		if not actions:
+		if not actions or terminated:
 			return node
 		for action in actions:
 			state = node.state.copy()  # numpy deepcopy
@@ -77,32 +83,17 @@ class MCTS:
 			action = random.choice(actions)
 			ConnectFour.move(sim_board, action)
 
-		# sim_game = ConnectFour(board=sim_board)
-		# while not sim_game.end:
-		# 	print(sim_game.board)
-		# 	# print(sim_game.endStatus)
-		# 	actions = ConnectFour.actions(sim_game.board)
-		# 	if not actions:
-		# 		break
-		# 	action = random.choice(actions)
-		# 	sim_game.doAction(action[1])
-		# 	print(action)
-		# 	print(sim_game.end)
-		# print(sim_game.board)
-
 		return winner
 
 	def back_track(self, node: TreeNode, result):
 		while node is not None:
 			node.visits += 1
-			# node.wins += 1 if result == self.player else 0
 			if result == self.player:
 				node.wins += 1
 				node.score += 1
 			elif result == -self.player:
 				node.score -= 1
 
-			# node.score += result
 			node = node.parent
 
 	def search(self):
@@ -116,4 +107,3 @@ class MCTS:
 		res = self.simulate(node)
 		print("res:", res)
 		self.back_track(node, res)
-		print(self.root)
