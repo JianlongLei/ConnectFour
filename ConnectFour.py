@@ -1,5 +1,10 @@
 import numpy as np
 
+P1_WIN = 1
+P2_WIN = 2
+DRAW = -1
+NOT_END = 0
+
 
 class ConnectFour:
     p1 = 1
@@ -10,7 +15,7 @@ class ConnectFour:
     # 1 player 1 win
     # 2 player 2 win
     # -1 draw
-    endStatus = 0
+    endStatus = NOT_END
     currentPlayer = 1
 
     def __init__(self, width=7, height=6):
@@ -52,12 +57,12 @@ class ConnectFour:
         self.board[y][x] = playerId
         self.nextStep[position] += 1
         self.endStatus = self.checkEnd(x, y)
-        self.end = self.endStatus != 0
+        self.end = self.endStatus != NOT_END
         self.nextPlayer(playerId)
         return True
 
     def checkEnd(self, x, y):
-        result = self.checkHorizontally(x,y)
+        result = self.checkHorizontally(x, y)
         if result != 0:
             return result
         result = self.checkVertically(x, y)

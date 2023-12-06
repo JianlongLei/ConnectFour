@@ -1,15 +1,14 @@
 import copy
 import math
 import random
-import time
 
-from ConnectFour import ConnectFour
+from ConnectFour import *
 
 
 class TreeNode:
     def __init__(self, game: ConnectFour):
         self.game = copy.deepcopy(game)
-        self.weight = 0
+        self.score = 0
         self.n = 0
         self.parent = None
         self.children = []
@@ -18,8 +17,12 @@ class TreeNode:
     def isLeaf(self):
         return not self.children
 
-    def update(self, node):
-        self.weight += node.weight
+    def update(self, status):
+        player = self.game.currentPlayer
+        if player == status:
+            self.score += 1
+        elif status > 0:
+            self.score -= 1
         self.n += 1
 
     def visited(self):
@@ -39,7 +42,7 @@ class MCTS:
         if not node.visited():
             return math.inf
         else:
-            value_estimate = node.weight / node.n
+            value_estimate = -node.score / node.n
             exploration = math.sqrt(self.const * math.log(self.root.n) / node.n)
             ucb_score = value_estimate + exploration
             return ucb_score
@@ -84,37 +87,23 @@ class MCTS:
             else:
                 # no available actions
                 terminate = True
-        if game.endStatus == self.player:
-            # win, get score 1
-            node.weight = 1
-        elif game.endStatus == -1:
-            # draw, get score 0
-            node.weight = 0
-        else:
-            # lose, get score -1
-            node.weight = -1
-        node.n = 1
-        return 0
+        node.update(game.endStatus)
+        return game.endStatus
 
-    def backpropagation(self, node: TreeNode):
+    def backpropagation(self, node: TreeNode, status):
         current = node
         while current.parent:
-            current.parent.update(current)
+            current.parent.update(status)
             current = current.parent
         return 0
 
     def doSearch(self):
-        startTime = time.time()
-        node = self.root
-        self.expansion(node)
-        while time.time() - startTime < self.timeLimit:
+        for i in range(100):
             node = self.selection(self.root)
             if node.visited() and self.expansion(node):
                 node = node.children[0]
-            # if node.visited() and node.game.end:
-            #     continue
-            self.simulation(node)
-            self.backpropagation(node)
+            status = self.simulation(node)
+            self.backpropagation(node, status)
         root = self.root
         visitResult = []
         valueResult = []
@@ -123,5 +112,5 @@ class MCTS:
             child = root.children[i]
             actionResult.append(root.action[i])
             visitResult.append(child.n)
-            valueResult.append(round(child.n/root.n, 2))
+            valueResult.append(-child.score)
         return visitResult, valueResult, actionResult
