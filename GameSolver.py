@@ -2,6 +2,8 @@ import copy
 import math
 import random
 
+import numpy as np
+
 from ConnectFour import *
 
 
@@ -97,8 +99,13 @@ class MCTS:
             current = current.parent
         return 0
 
-    def doSearch(self):
-        for i in range(100):
+    def doSearch(self, iterations=None):
+        if iterations is None:
+            empty = np.count_nonzero(self.root.game.board == 0)
+            iterations = 2 ** empty / 10
+            iterations = min(iterations, 2500)
+            iterations = max(iterations, 100)
+        for i in range(iterations):
             node = self.selection(self.root)
             if node.visited() and self.expansion(node):
                 node = node.children[0]
