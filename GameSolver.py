@@ -102,7 +102,7 @@ class MCTS:
     def doSearch(self, iterations=None):
         if iterations is None:
             empty = np.count_nonzero(self.root.game.board == 0)
-            iterations = 2 ** empty / 10
+            iterations = int(2 ** empty / 10)
             iterations = min(iterations, 2500)
             iterations = max(iterations, 100)
         for i in range(iterations):
