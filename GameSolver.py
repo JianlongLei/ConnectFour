@@ -14,33 +14,32 @@ class TreeNode:
 		self.root = root
 		self.children = []
 
-	def best_child(self):
+	def best_child(self, opposite=False):
 		if not self.children:
 			return None
 
-		best_child = max(self.children, key=calUcb)
-		return best_child
-
-	def worst_child(self):
-		if not self.children:
-			return None
-
-		worst_child = min(self.children, key=calUcb)
-		return worst_child
+		if opposite:
+			return max(self.children, key=opposite_ucb)
+		else:
+			return max(self.children, key=cal_ucb)
 
 	def __str__(self):
 		return f"score/wins/visits:{self.score}/{self.wins}/{self.visits}, children:{self.children}, parent:{id(self.parent)}"
 
 
-def calUcb(node: TreeNode):
+def cal_ucb(node: TreeNode, exploitation_c=1, exploration_c=2):
 	if node.visits == 0:
 		return math.inf
 	if node.parent is None:
 		return 0
-	exploitation = node.score / node.visits
-	exploration = math.sqrt(2 * math.log(node.parent.visits) / node.visits)
+	exploitation = node.score / node.visits * exploitation_c
+	exploration = math.sqrt(exploration_c * math.log(node.parent.visits) / node.visits)
 	ucb_score = exploitation + exploration
 	return ucb_score
+
+
+def opposite_ucb(node: TreeNode):
+	return cal_ucb(node, -1, 2)
 
 
 class MCTS:
@@ -57,8 +56,8 @@ class MCTS:
 			if cur_player == self.player:
 				node = node.best_child()
 			else:
-				node = random.choice(node.children)
-				# node = node.worst_child()  # minmax
+				# node = random.choice(node.children)
+				node = node.best_child(opposite=True)
 		return node
 
 	@staticmethod
