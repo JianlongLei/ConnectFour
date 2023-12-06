@@ -31,6 +31,7 @@ class GameUI:
         self.boardHeight = (self.itemSize + self.padding * 2) * self.game.height
         self.width = self.boardWidth + self.padding * 2
         self.height = self.boardHeight + self.padding * 2
+        self.result = []
         window.title(self.title)
         topFrame = Frame(window)
         topFrame.pack(side=TOP, fill='both')
@@ -117,14 +118,16 @@ class GameUI:
 
     def _click_solve_game(self):
         visitResult, valueResult, actionResult = self.mcts_solver()
+        self.result = [visitResult, valueResult, actionResult]
         self.refresh()
         self.draw(self.game)
         for i, action in enumerate(actionResult):
             x = action
             y = self.game.height - self.game.nextStep[action] - 1
             itemX0, itemY0, itemX1, itemY1 = self.itemPosition(x, y)
-            text = 'a: ' + str(action) + '\nn: ' + str(visitResult[i]) + '\nv: ' + str(valueResult[i])
+            text = 'a: ' + str(action) + '\nn: ' + str(visitResult[i]) + '\np: ' + str(round(valueResult[i]/visitResult[i],2))
             self.canvas.create_text(itemX0 + self.padding * 2, itemY0 + self.padding * 2, text=text, font=("Helvetica", 10), fill="#333")
+
         return 0
 
     def _click_save_game(self):
@@ -146,9 +149,14 @@ class GameUI:
         return 0
 
     def doAiAction(self):
-        visitResult, valueResult, actionResult = self.mcts_solver()
+        if self.result:
+            visitResult, valueResult, actionResult = self.result
+        else:
+            visitResult, valueResult, actionResult = self.mcts_solver()
+
         action = actionResult[visitResult.index(max(visitResult))]
         self.game.doAction(action)
+        self.result.clear()
         self.draw(self.game)
 
     def _click_ai_mode(self):
@@ -160,6 +168,7 @@ class GameUI:
     def newGame(self):
         self.isAiMode = False
         self.game.newGame()
+        self.result.clear()
         self.refresh()
         self.draw(self.game)
 
