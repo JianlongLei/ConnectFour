@@ -1,4 +1,3 @@
-import time
 from tkinter import *
 from tkinter import messagebox
 from ConnectFour import *
@@ -76,7 +75,7 @@ class GameUI:
                     color = self.p1Color
                 elif item == 2:
                     color = self.p2Color
-                self.canvas.create_oval(itemX0, itemY0, itemX1, itemY1, fill=color)
+                self.canvas.create_oval(itemX0, itemY0, itemX1, itemY1, fill=color, outline=color)
         self._show_current_player(game)
         if self.game.end:
             x = self.canvas.winfo_width() // 2
