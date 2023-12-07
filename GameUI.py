@@ -124,7 +124,7 @@ class GameUI:
             y = self.game.height - self.game.nextStep[action] - 1
             itemX0, itemY0, itemX1, itemY1 = self.itemPosition(x, y)
             s, w, l, d = gameResult[i]
-            text = f's: {round(s,2)}\nw: {round(w,2)}\nl: {round(l, 2)}\nd: {round(d, 2)}'
+            text = f's: {round(s,3)}\nw: {round(w*100,2)}%\nl: {round(l*100, 2)}%\nd: {round(d*100, 2)}%'
             # text = f'r: ' + str(round(winResult[i],2)) + '\nn: ' + str(visitResult[i]) + '\ns: ' + str()
             self.canvas.create_text(itemX0 + self.padding * 2, itemY0 + self.padding * 2, text=text, font=("Helvetica", 10), fill="#333")
 
