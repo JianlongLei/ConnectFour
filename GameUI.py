@@ -110,19 +110,20 @@ class GameUI:
     def mcts_solver(self):
         self.solving = True
         solver = MCTS(self.game)
-        visitResult, valueResult, actionResult = solver.doSearch()
+        visitResult, valueResult, actionResult, winResult = solver.doSearch()
         self.solving = False
-        return visitResult, valueResult, actionResult
+        return visitResult, valueResult, actionResult, winResult
 
     def _click_solve_game(self):
-        visitResult, valueResult, actionResult = self.mcts_solver()
+        visitResult, valueResult, actionResult, winResult = self.mcts_solver()
         self.refresh()
         self.draw(self.game)
         for i, action in enumerate(actionResult):
             x = action
             y = self.game.height - self.game.nextStep[action] - 1
             itemX0, itemY0, itemX1, itemY1 = self.itemPosition(x, y)
-            text = 'a: ' + str(action) + '\nn: ' + str(visitResult[i]) + '\np: ' + str(round(valueResult[i]/visitResult[i],2))
+            text = f'r: {round(winResult[i],2)}\nn: {visitResult[i]}\ns: {round(valueResult[i]/visitResult[i], 2)}\nfwrwghgfs'
+            # text = f'r: ' + str(round(winResult[i],2)) + '\nn: ' + str(visitResult[i]) + '\ns: ' + str()
             self.canvas.create_text(itemX0 + self.padding * 2, itemY0 + self.padding * 2, text=text, font=("Helvetica", 10), fill="#333")
 
         return 0

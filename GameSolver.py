@@ -13,6 +13,9 @@ class TreeNode:
         self.game = copy.deepcopy(game)
         self.score = 0
         self.n = 0
+        self.win = 0
+        self.lose = 0
+        self.draw = 0
         self.parent = None
         self.children = []
         self.action = []
@@ -24,8 +27,12 @@ class TreeNode:
         player = self.game.currentPlayer
         if player == status:
             self.score += 1
+            self.win += 1
         elif status > 0:
             self.score -= 1
+            self.lose += 1
+        else:
+            self.draw += 1
         self.n += 1
 
     def visited(self):
@@ -100,7 +107,7 @@ class MCTS:
             current = current.parent
         return 0
 
-    def doSearch(self, iterations=2500, span=0.0001):
+    def doSearch(self, iterations=10000, span=0.0001):
         avg_score = []
         # if iterations is None:
         #     empty = np.count_nonzero(self.root.game.board == 0)
@@ -114,17 +121,20 @@ class MCTS:
             status = self.simulation(node)
             self.backpropagation(node, status)
             avg_score.append(self.root.score/self.root.n)
-            if i > 1 and np.abs(avg_score[-1]-avg_score[-2]) <= span:
+            if i > 50 and np.abs(avg_score[-1]-avg_score[-2]) <= span:
+                print()
                 break
         root = self.root
         visitResult = []
         valueResult = []
         actionResult = []
+        winResult = []
         for i in range(len(root.children)):
             child = root.children[i]
             actionResult.append(root.action[i])
             visitResult.append(child.n)
             valueResult.append(-child.score)
+            winResult.append(child.lose/child.n)
         plt.plot(avg_score)
         plt.show()
-        return visitResult, valueResult, actionResult
+        return visitResult, valueResult, actionResult, winResult
