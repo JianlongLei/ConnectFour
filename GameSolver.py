@@ -112,28 +112,35 @@ class MCTS:
 		return 0
 
 	def doSearch(self, iterations=5000, span=0.000001):
-		avg_score = []
+		score_list = []
 		for i in range(iterations):
 			node = self.selection(self.root)
 			if node.visited() and self.expansion(node):
 				node = node.children[0]
 			status = self.simulation(node)
 			self.backpropagation(node, status)
-			avg_score.append(self.root.score / self.root.n)
-			if i > 100 and np.abs(np.average(avg_score[-10:]) - np.average(avg_score[-100:])) <= span:
+			score_list.append(self.root.score / self.root.n)
+			if i > 100 and np.abs(np.average(score_list[-10:]) - np.average(score_list[-100:])) <= span:
 				break  # converge condition
 
 		root = self.root
-		visitResult = []
-		valueResult = []
+		# visitResult = []
+		# valueResult = []
 		actionResult = []
-		winResult = []
+		# winResult = []
+		gameResult = []
 		for i in range(len(root.children)):
 			child = root.children[i]
+			n = child.n
+			avg_score = -child.score/n
+			p_win = -child.win/n
+			p_lose = -child.lose/n
+			p_draw = child.draw/n
 			actionResult.append(root.action[i])
-			visitResult.append(child.n)
-			valueResult.append(-child.score)
-			winResult.append(child.lose / child.n)
-		plt.plot(avg_score)
+			# visitResult.append(child.n)
+			# valueResult.append(-child.score)
+			# winResult.append(child.lose / child.n)
+			gameResult.append((avg_score, p_win, p_lose, p_draw))
+		plt.plot(score_list)
 		plt.show()
-		return visitResult, valueResult, actionResult, winResult
+		return actionResult, gameResult

@@ -1,3 +1,4 @@
+import math
 from tkinter import *
 from tkinter import messagebox
 from ConnectFour import *
@@ -110,19 +111,20 @@ class GameUI:
     def mcts_solver(self):
         self.solving = True
         solver = MCTS(self.game)
-        visitResult, valueResult, actionResult, winResult = solver.doSearch()
+        actionResult, gameResult = solver.doSearch()
         self.solving = False
-        return visitResult, valueResult, actionResult, winResult
+        return actionResult, gameResult
 
     def _click_solve_game(self):
-        visitResult, valueResult, actionResult, winResult = self.mcts_solver()
+        actionResult, gameResult = self.mcts_solver()
         self.refresh()
         self.draw(self.game)
         for i, action in enumerate(actionResult):
             x = action
             y = self.game.height - self.game.nextStep[action] - 1
             itemX0, itemY0, itemX1, itemY1 = self.itemPosition(x, y)
-            text = f'r: {round(winResult[i],2)}\nn: {visitResult[i]}\ns: {round(valueResult[i]/visitResult[i], 2)}\nfwrwghgfs'
+            s, w, l, d = gameResult[i]
+            text = f's: {round(s,2)}\nw: {round(w,2)}\nl: {round(l, 2)}\nd: {round(d, 2)}'
             # text = f'r: ' + str(round(winResult[i],2)) + '\nn: ' + str(visitResult[i]) + '\ns: ' + str()
             self.canvas.create_text(itemX0 + self.padding * 2, itemY0 + self.padding * 2, text=text, font=("Helvetica", 10), fill="#333")
 
@@ -147,9 +149,15 @@ class GameUI:
         return 0
 
     def doAiAction(self):
-        visitResult, valueResult, actionResult, winResult = self.mcts_solver()
-
-        action = actionResult[visitResult.index(max(visitResult))]
+        actionResult, gameResult = self.mcts_solver()
+        action = -1
+        max_score = -math.inf
+        for i, a in enumerate(actionResult):
+            s, w, l, d = gameResult[i]
+            if s > max_score:
+                action = a
+                max_score = s
+        # action = actionResult[visitResult.index(max(visitResult))]
         self.game.doAction(action)
         self.draw(self.game)
 
