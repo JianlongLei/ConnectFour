@@ -45,7 +45,7 @@ class MCTS:
             return math.inf
         else:
             value_estimate = -node.score / node.n
-            exploration = math.sqrt(self.const * math.log(self.root.n) / node.n)
+            exploration = math.sqrt(self.const * math.log(node.parent.n) / node.n)
             ucb_score = value_estimate + exploration
             return ucb_score
 
