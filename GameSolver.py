@@ -127,10 +127,10 @@ class MCTS:
 		for i in range(len(root.children)):
 			child = root.children[i]
 			n = child.n
-			avg_score = -child.score/n
-			p_win = child.lose/n
-			p_lose = child.win/n
-			p_draw = child.draw/n
+			avg_score = -child.score / n
+			p_win = child.lose / n
+			p_lose = child.win / n
+			p_draw = child.draw / n
 			actionResult.append(root.action[i])
 			gameResult.append((avg_score, p_win, p_lose, p_draw))
 		plt.plot(score_list)
