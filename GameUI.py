@@ -147,7 +147,7 @@ class GameUI:
         return 0
 
     def doAiAction(self):
-        visitResult, valueResult, actionResult = self.mcts_solver()
+        visitResult, valueResult, actionResult, winResult = self.mcts_solver()
 
         action = actionResult[visitResult.index(max(visitResult))]
         self.game.doAction(action)
