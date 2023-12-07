@@ -2,6 +2,8 @@ import copy
 import math
 import random
 
+import matplotlib.pyplot as plt
+import numpy as np
 
 from ConnectFour import *
 
@@ -98,18 +100,22 @@ class MCTS:
             current = current.parent
         return 0
 
-    def doSearch(self, iterations=None):
-        if iterations is None:
-            empty = np.count_nonzero(self.root.game.board == 0)
-            iterations = int(2 ** empty / 10)
-            iterations = min(iterations, 2500)
-            iterations = max(iterations, 100)
+    def doSearch(self, iterations=2500, span=0.0001):
+        avg_score = []
+        # if iterations is None:
+        #     empty = np.count_nonzero(self.root.game.board == 0)
+        #     iterations = int(2 ** empty / 10)
+        #     iterations = min(iterations, 2500)
+        #     iterations = max(iterations, 1000)
         for i in range(iterations):
             node = self.selection(self.root)
             if node.visited() and self.expansion(node):
                 node = node.children[0]
             status = self.simulation(node)
             self.backpropagation(node, status)
+            avg_score.append(self.root.score/self.root.n)
+            if i > 1 and np.abs(avg_score[-1]-avg_score[-2]) <= span:
+                break
         root = self.root
         visitResult = []
         valueResult = []
@@ -119,4 +125,6 @@ class MCTS:
             actionResult.append(root.action[i])
             visitResult.append(child.n)
             valueResult.append(-child.score)
+        plt.plot(avg_score)
+        plt.show()
         return visitResult, valueResult, actionResult
