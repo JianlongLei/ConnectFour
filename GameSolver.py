@@ -2,7 +2,6 @@ import copy
 import math
 import random
 
-import numpy as np
 
 from ConnectFour import *
 
