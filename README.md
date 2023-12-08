@@ -9,7 +9,6 @@ This document will introduce the project in two sections.
 There are five actions total:
 1. New Game: Clean the board and start a new game. Blue always play first.
 2. Solver: MCTS algorithm will give an estimation of all actions in [0,6], including **n** for visited times and **p** for average score.
-![img.png](figures/img.png)
 3. Save: Save the current board.
 4. Load: Load the last saved board.
 5. AIPlayer: Play with our AI! It will start play whenever you click the button.
